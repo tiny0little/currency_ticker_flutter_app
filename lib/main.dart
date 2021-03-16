@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
-const apiKey = '671371366ba32939d7dd';
-// https://free.currconv.com/api/v7/convert?q=USD_PHP&compact=ultra&apiKey=671371366ba32939d7dd
-// max number of requests per hour: 100
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(
     MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.black38,
+            primary: Colors.white,
+            elevation: 3,
+            textStyle: TextStyle(fontSize: 21),
+          ),
+        ),
         textTheme: TextTheme(
           bodyText2: TextStyle(
             color: Colors.black,
@@ -30,8 +36,8 @@ class MyCurrencyTickerApp extends StatefulWidget {
 }
 
 class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
-  String currency1 = '';
-  String currency2 = '';
+  String currency1 = 'USD';
+  String currency2 = 'USD';
   double exchangeRate = 0;
 
   List<Text> pickerItems = [];
@@ -46,6 +52,21 @@ class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
     'ETH',
     'LTC',
   ];
+
+  Future<void> getExRate() async {
+    const apiKey = '671371366ba32939d7dd';
+    var returnData;
+
+    Uri url = Uri.https('free.currconv.com', '/api/v7/convert',
+        {'apiKey': apiKey, 'q': '${currency1}_$currency2'});
+
+    http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      returnData = jsonDecode(response.body);
+      exchangeRate = returnData['results']['${currency1}_$currency2']['val'];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +89,7 @@ class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
                   Expanded(
                     child: CupertinoPicker(
                         itemExtent: 32,
-                        onSelectedItemChanged: (selectedIndex) {
+                        onSelectedItemChanged: (selectedIndex) async {
                           setState(() {
                             currency1 = currencyList[selectedIndex];
                           });
@@ -79,7 +100,7 @@ class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
                   Expanded(
                     child: CupertinoPicker(
                         itemExtent: 32,
-                        onSelectedItemChanged: (selectedIndex) {
+                        onSelectedItemChanged: (selectedIndex) async {
                           setState(() {
                             currency2 = currencyList[selectedIndex];
                           });
@@ -89,17 +110,21 @@ class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
                 ],
               )),
           Expanded(
-            flex: 1,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(currency1, textAlign: TextAlign.center),
-                ),
-                Text('>'),
-                Expanded(
-                  child: Text(currency2, textAlign: TextAlign.center),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: TextButton(
+                onPressed: () async {
+                  if (currency1.length > 0 &&
+                      currency2.length > 0 &&
+                      currency1 != currency2) {
+                    await getExRate();
+                  } else {
+                    exchangeRate = 0;
+                  }
+                  setState(() {});
+                },
+                child: Text('Get Rate'),
+              ),
             ),
           ),
           Expanded(
