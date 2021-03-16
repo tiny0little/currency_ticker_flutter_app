@@ -20,8 +20,6 @@ void main() {
           bodyText2: TextStyle(
             color: Colors.black,
             fontSize: 23,
-            // fontWeight: FontWeight.bold,
-            // fontFamily: 'PoiretOne',
           ),
         ),
       ),
