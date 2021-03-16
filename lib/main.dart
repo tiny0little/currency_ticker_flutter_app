@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'dart:convert';
 
 void main() {
@@ -37,6 +38,7 @@ class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
   String currency1 = 'USD';
   String currency2 = 'USD';
   double exchangeRate = 0;
+  var numberFormater = NumberFormat('###,###,###.##');
 
   List<Text> pickerItems = [];
 
@@ -127,7 +129,7 @@ class _MyCurrencyTickerAppState extends State<MyCurrencyTickerApp> {
           ),
           Expanded(
             child: Text(
-              exchangeRate.toString(),
+              numberFormater.format(exchangeRate),
               style: TextStyle(fontSize: 37),
               textAlign: TextAlign.center,
             ),
